@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build output
+bin/
+obj/
+
+# Rider / VSCode
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Docker artifacts
+**/Dockerfile*
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
