@@ -242,7 +242,7 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
 
         // cover image
         HtmlNode imgNode = divNode.SelectSingleNode(".//img");
-        string coverUrl = imgNode?.GetAttributeValue("src", string.Empty) ?? string.Empty;
+        string coverUrl = NormalizeUrl(imgNode?.GetAttributeValue("src", string.Empty) ?? string.Empty);
         string coverFileName = Path.GetFileName(coverUrl);
 
         // genres
@@ -266,7 +266,7 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
             .WithTitle(title)
             .WithAuthors([author])
             .WithDescription("No Description Available")
-            .WithCoverUrl(string.IsNullOrEmpty(coverUrl) ? null : new Uri(coverUrl, UriKind.Relative))
+            .WithCoverUrl(string.IsNullOrEmpty(coverUrl) ? null : new Uri(coverUrl))
             .WithCoverFileName(coverFileName)
             .WithWebsiteUrl(NormalizeUrl(websiteUrl))
             .WithAlternativeTitles(
@@ -353,14 +353,13 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
         // --- Cover ---
         HtmlNode imgNode = rootNode.SelectSingleNode(".//div[contains(@class,'manga-cover')]//img");
 
-        string coverUrl = imgNode?.GetAttributeValue("src", string.Empty) ?? string.Empty;
+        string coverUrl = NormalizeUrl(imgNode?.GetAttributeValue("src", string.Empty) ?? string.Empty);
         string coverFileName = Path.GetFileName(coverUrl);
 
         // --- Website URL ---
-        string href =
-            rootNode.SelectSingleNode("//link[@rel='canonical']")
+        string href = NormalizeUrl($"samples/manga/{rootNode.SelectSingleNode("//link[@rel='canonical']")
             ?.GetAttributeValue("href", string.Empty)
-            ?? id;
+            ?? id}");
 
         // --- Release Status ---
         string releaseStatus =
@@ -381,7 +380,7 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
             .WithDescription(description)
             .WithAuthors([.. authors])
             .WithTags([.. genres])
-            .WithCoverUrl(string.IsNullOrEmpty(coverUrl) ? null : new Uri(coverUrl, UriKind.Relative))
+            .WithCoverUrl(string.IsNullOrEmpty(coverUrl) ? null : new Uri(coverUrl))
             .WithCoverFileName(coverFileName)
             .WithWebsiteUrl(NormalizeUrl(href))
             .WithIsFamilySafe(!genres.Any(IsGenreNotFamilySafe))
@@ -526,7 +525,7 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
         foreach (HtmlNode node in pageNodes)
         {
             // --- Image URL ---
-            string imageUrl = node.GetAttributeValue("src", string.Empty);
+            string imageUrl = NormalizeUrl(node.GetAttributeValue("src", string.Empty));
             if (string.IsNullOrWhiteSpace(imageUrl))
             {
                 continue;

@@ -1,3 +1,5 @@
+using System;
+
 using KamiYomu.CrawlerAgents.Core;
 using KamiYomu.CrawlerAgents.Core.Catalog;
 using KamiYomu.CrawlerAgents.Sample;
@@ -18,9 +20,17 @@ ILogger logger = loggerFactory.CreateLogger<Program>();
 Dictionary<string, object> options = new()
 {
     { CrawlerAgentSettings.DefaultInputs.KamiYomuILogger, logger },
-    { "Mirror", "https://kamiyomu.github.io" }
+    { "Mirror", "https://kamiyomu.com" }
 };
 ICrawlerAgent crawler = new SampleCrawlerAgent(options);
+using HttpClientHandler handler = new()
+{
+    AllowAutoRedirect = true
+};
+using HttpClient httpClient = new(handler);
+httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
+    CrawlerAgentSettings.HttpUserAgent);
+
 List<(string Method, bool Success, string Message)> results = [];
 
 PagedResult<Manga> mangaResult = await crawler.SearchAsync("Sample", new PaginationOptions(1, 30), CancellationToken.None);
@@ -49,9 +59,22 @@ try
     results.Add(($"{nameof(Manga.Id)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Id), $"{mangaResult.Data.ElementAt(0).Id}"));
     results.Add(($"{nameof(Manga.Title)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Title), $"{mangaResult.Data.ElementAt(0).Title}"));
     results.Add(($"{nameof(Manga.Description)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Description), $"{mangaResult.Data.ElementAt(0).Description}"));
-    results.Add(($"{nameof(Manga.WebSiteUrl)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).WebSiteUrl), $"{mangaResult.Data.ElementAt(0).WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.WebSiteUrl)} is well formated", Uri.IsWellFormedUriString(mangaResult.Data.ElementAt(0).WebSiteUrl, UriKind.Absolute), $"{mangaResult.Data.ElementAt(0).WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is well formated", Uri.IsWellFormedUriString(mangaResult.Data.ElementAt(0).CoverUrl.ToString(), UriKind.Absolute), $"{mangaResult.Data.ElementAt(0).CoverUrl}"));
+    results.Add(($"{nameof(Manga.WebSiteUrl)} is found", (await httpClient.GetAsync(mangaResult.Data.ElementAt(0).WebSiteUrl.ToString())).IsSuccessStatusCode, $"{mangaResult.Data.ElementAt(0).WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(mangaResult.Data.ElementAt(0).CoverUrl.ToString())).IsSuccessStatusCode, $"{mangaResult.Data.ElementAt(0).CoverFileName}"));
     results.Add(($"{nameof(Manga.CoverFileName)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).CoverFileName), $"{mangaResult.Data.ElementAt(0).CoverFileName}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{mangaResult.Data.ElementAt(0).IsFamilySafe}"));
+
+
+
+    using HttpResponseMessage response = await httpClient.GetAsync(
+        mangaResult.Data.ElementAt(0).CoverUrl,
+        HttpCompletionOption.ResponseHeadersRead);
+
+    byte[] coverImageBytes = await response.Content.ReadAsByteArrayAsync();
+
+    results.Add((nameof(HttpClient.GetByteArrayAsync), coverImageBytes.Any(), $"Returned {coverImageBytes.Count()} bytes as result(s)"));
 
 }
 catch (Exception ex)
@@ -71,9 +94,16 @@ try
     results.Add(($"{nameof(Manga.Id)} is not empty", !string.IsNullOrWhiteSpace(manga.Id), $"{manga.Id}"));
     results.Add(($"{nameof(Manga.Title)} is not empty", !string.IsNullOrWhiteSpace(manga.Title), $"{manga.Title}"));
     results.Add(($"{nameof(Manga.Description)} is not empty", !string.IsNullOrWhiteSpace(manga.Description), $"{manga.Description}"));
-    results.Add(($"{nameof(Manga.WebSiteUrl)} is not empty", !string.IsNullOrWhiteSpace(manga.WebSiteUrl), $"{manga.WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.WebSiteUrl)} is well formated", Uri.IsWellFormedUriString(manga.WebSiteUrl, UriKind.Absolute), $"{manga.WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is well formated", Uri.IsWellFormedUriString(manga.CoverUrl.ToString(), UriKind.Absolute), $"{manga.CoverFileName}"));
+    results.Add(($"{nameof(Manga.WebSiteUrl)} is found", (await httpClient.GetAsync(manga.WebSiteUrl.ToString())).IsSuccessStatusCode, $"{manga.WebSiteUrl}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(manga.CoverUrl.ToString())).IsSuccessStatusCode, $"{manga.CoverFileName}"));
     results.Add(($"{nameof(Manga.CoverFileName)} is not empty", !string.IsNullOrWhiteSpace(manga.CoverFileName), $"{manga.CoverFileName}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
+    results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
+
+    ;
+
 }
 catch (Exception ex)
 {
@@ -97,7 +127,8 @@ try
     results.Add((nameof(ICrawlerAgent.GetChaptersAsync), !string.IsNullOrWhiteSpace(chaptersResult?.Data.FirstOrDefault()?.Id), $"Returned {chaptersResult?.Data.FirstOrDefault()?.Id} result(s)"));
     results.Add(($"{nameof(Chapter.Id)} is not empty", !string.IsNullOrWhiteSpace(chaptersResult.Data?.FirstOrDefault().Id), $"{chaptersResult.Data?.FirstOrDefault().Id}"));
     results.Add(($"{nameof(Chapter.Title)} is not empty", !string.IsNullOrWhiteSpace(chaptersResult?.Data?.FirstOrDefault().Title), $"{chaptersResult?.Data?.FirstOrDefault().Title}"));
-    results.Add(($"{nameof(Chapter.Uri)} is not empty", !string.IsNullOrWhiteSpace(chaptersResult.Data?.FirstOrDefault().Uri.ToString()), $"{chaptersResult.Data?.FirstOrDefault().Uri}"));
+    results.Add(($"{nameof(Chapter.Uri)} is well formatted", Uri.IsWellFormedUriString(chaptersResult.Data?.FirstOrDefault().Uri.ToString(), UriKind.Absolute), $"{chaptersResult.Data?.FirstOrDefault().Uri}"));
+    results.Add(($"{nameof(Chapter.Uri)} is found", (await httpClient.GetAsync(chaptersResult.Data?.FirstOrDefault().Uri.ToString())).IsSuccessStatusCode, $"{chaptersResult.Data?.FirstOrDefault().Uri}"));
     results.Add(($"{nameof(Chapter.Number)} is not empty", allNumbers.Count > 0, numbersString));
     results.Add(($"{nameof(allNumbers.Count)} is not empty", allNumbers.Count > 0, allNumbers.Count.ToString()));
     results.Add(($"{nameof(Chapter.ParentManga)} is not empty", chaptersResult.Data?.FirstOrDefault() != null, $"{chaptersResult.Data?.FirstOrDefault().ParentManga.Title}"));
@@ -117,12 +148,6 @@ try
     Thread.Sleep(1000);
     IEnumerable<Page> chapterImages = await crawler.GetChapterPagesAsync(chaptersResult.Data.Last(), CancellationToken.None);
 
-    using HttpClientHandler handler = new()
-    {
-        AllowAutoRedirect = true
-    };
-
-    using HttpClient httpClient = new(handler);
     httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
         CrawlerAgentSettings.HttpUserAgent);
 
