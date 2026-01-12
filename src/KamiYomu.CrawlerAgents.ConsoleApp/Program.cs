@@ -97,7 +97,7 @@ try
     results.Add(($"{nameof(Manga.WebSiteUrl)} is well formated", Uri.IsWellFormedUriString(manga.WebSiteUrl, UriKind.Absolute), $"{manga.WebSiteUrl}"));
     results.Add(($"{nameof(Manga.CoverUrl)} is well formated", Uri.IsWellFormedUriString(manga.CoverUrl.ToString(), UriKind.Absolute), $"{manga.CoverFileName}"));
     results.Add(($"{nameof(Manga.WebSiteUrl)} is found", (await httpClient.GetAsync(manga.WebSiteUrl.ToString())).IsSuccessStatusCode, $"{manga.WebSiteUrl}"));
-    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(manga.CoverUrl.ToString())).IsSuccessStatusCode, $"{manga.CoverFileName}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(manga.CoverUrl.ToString())).IsSuccessStatusCode, $"{manga.CoverUrl}"));
     results.Add(($"{nameof(Manga.CoverFileName)} is not empty", !string.IsNullOrWhiteSpace(manga.CoverFileName), $"{manga.CoverFileName}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
