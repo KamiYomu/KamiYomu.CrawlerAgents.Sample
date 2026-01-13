@@ -117,7 +117,6 @@ try
     results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(manga.CoverUrl.ToString())).IsSuccessStatusCode, $"{manga.CoverUrl}"));
     results.Add(($"{nameof(Manga.CoverFileName)} is not empty", !string.IsNullOrWhiteSpace(manga.CoverFileName), $"{manga.CoverFileName}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
-    results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{manga.IsFamilySafe}"));
 
     ;
 
