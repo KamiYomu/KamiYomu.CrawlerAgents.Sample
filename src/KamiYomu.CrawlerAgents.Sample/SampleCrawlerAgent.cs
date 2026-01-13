@@ -19,13 +19,15 @@ using Page = KamiYomu.CrawlerAgents.Core.Catalog.Page;
 namespace KamiYomu.CrawlerAgents.Sample;
 
 [DisplayName("KamiYomu Crawler Agent – kamiyomu.com")]
-[CrawlerSelect("Language", "Sample field, it has no effect", ["en", "pt_br", "pt"])]
+[CrawlerSelect("Language", "Sample field, it has no effect", true, 1, ["en", "pt_br", "pt"])]
 [CrawlerCheckBox("ContentRating", "Sample field, it has no effect", true, "safe", 2, ["safe", "suggestive", "erotica", "pornographic"])]
-[CrawlerSelect("Mirror", "MangaPark offers multiple mirror sites that may be online and useful. You can check their current status at https://mangaparkmirrors.pages.dev/",
-    true, 0, [
+[CrawlerSelect("Mirror", "Sample field, it has no effect",
+    true, 3, [
         "https://kamiyomu.com",
         "https://kamiyomu.github.io",
     ])]
+[CrawlerText("Username", "Sample field, it has no effect", false, "", 4)]
+[CrawlerPassword("ApiKey", "Sample field, it has no effect", false, "", 5)]
 public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
 {
     private bool _disposed = false;
@@ -35,6 +37,8 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
     private readonly bool _isSuggestive;
     private readonly bool _isErotica;
     private readonly bool _isPornographic;
+    private readonly string _username;
+    private readonly string _password;
     private readonly Lazy<Task<IBrowser>> _browser;
     public SampleCrawlerAgent(IDictionary<string, object> options) : base(options)
     {
@@ -44,7 +48,9 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
         _isSuggestive = Options.TryGetValue("ContentRating.suggestive", out object suggestive) && suggestive is bool suggestiveValue && suggestiveValue;
         _isErotica = Options.TryGetValue("ContentRating.erotica", out object erotica) && erotica is bool eroticaValue && eroticaValue;
         _isPornographic = Options.TryGetValue("ContentRating.pornographic", out object pornographic) && pornographic is bool pornographicValue && pornographicValue;
-        string mirrorUrl = Options.TryGetValue("Mirror", out object? mirror) && mirror is string mirrorValue ? mirrorValue : "https://.net";
+        _username = Options.TryGetValue("Username", out object? username) && username is string usernameValue ? usernameValue : "";
+        _password = Options.TryGetValue("Password", out object? password) && password is string passwordValue ? passwordValue : "";
+        string mirrorUrl = Options.TryGetValue("Mirror", out object? mirror) && mirror is string mirrorValue ? mirrorValue : "https://kamiyomu.com";
         _baseUri = new Uri(mirrorUrl);
     }
 
@@ -133,6 +139,8 @@ public class SampleCrawlerAgent : AbstractCrawlerAgent, ICrawlerAgent
         Logger.LogInformation("{parameter}: {value}", nameof(_isSuggestive), _isSuggestive);
         Logger.LogInformation("{parameter}: {value}", nameof(_isErotica), _isErotica);
         Logger.LogInformation("{parameter}: {value}", nameof(_isPornographic), _isPornographic);
+        Logger.LogInformation("{parameter}: {value}", nameof(_username), _username);
+        Logger.LogInformation("{parameter}: {value}", nameof(_password), _password);
         Logger.LogInformation("{parameter}: {value}", nameof(_baseUri), _baseUri);
 
         await page.EmulateTimezoneAsync("America/Toronto");

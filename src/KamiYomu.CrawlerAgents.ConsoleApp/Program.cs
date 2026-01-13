@@ -1,5 +1,3 @@
-using System;
-
 using KamiYomu.CrawlerAgents.Core;
 using KamiYomu.CrawlerAgents.Core.Catalog;
 using KamiYomu.CrawlerAgents.Sample;
@@ -34,6 +32,20 @@ httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
 List<(string Method, bool Success, string Message)> results = [];
 
 PagedResult<Manga> mangaResult = await crawler.SearchAsync("Sample", new PaginationOptions(1, 30), CancellationToken.None);
+#endregion
+
+#region Test Constructor
+try
+{
+    AnsiConsole.MarkupLine($"[bold underline green] Start Testing the constructor {nameof(ICrawlerAgent)}... [/]\n");
+    results.Add(($"{nameof(ICrawlerAgent)} constructor with null", new SampleCrawlerAgent(null!) != null, "constructor with `null` value"));
+    results.Add(($"{nameof(ICrawlerAgent)} constructor with no key-values", new SampleCrawlerAgent(new Dictionary<string, object>()) != null, "constructor with no key-values"));
+    results.Add(($"{nameof(ICrawlerAgent)} constructor with options", new SampleCrawlerAgent(options) != null, "constructor with options"));
+}
+catch (Exception ex)
+{
+    results.Add((nameof(ICrawlerAgent), false, ex.Message));
+}
 #endregion
 
 #region Test GetFaviconAsync
@@ -171,9 +183,10 @@ catch (Exception ex)
 Table table = new Table()
     .Title("[yellow]Test Results[/]")
     .Border(TableBorder.Rounded)
-    .AddColumn("Method")
-    .AddColumn("Status")
-    .AddColumn("Message");
+    .AddColumn(new TableColumn("Method").Width(40))
+    .AddColumn(new TableColumn("Status").Width(15))
+    .AddColumn(new TableColumn("Message").Width(80));
+
 
 foreach ((string method, bool success, string message) in results)
 {
