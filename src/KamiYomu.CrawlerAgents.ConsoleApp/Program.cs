@@ -54,6 +54,8 @@ try
     AnsiConsole.MarkupLine($"[bold underline green] Start Testing the method {nameof(ICrawlerAgent.GetFaviconAsync)}... [/]\n");
     Uri? favicon = await crawler.GetFaviconAsync(CancellationToken.None);
     results.Add((nameof(ICrawlerAgent.GetFaviconAsync), favicon != null && favicon.IsAbsoluteUri, favicon?.ToString() ?? "Returned null"));
+    results.Add(($"{nameof(ICrawlerAgent.GetFaviconAsync)} is found", (await httpClient.GetAsync(favicon.ToString())).IsSuccessStatusCode, $"{favicon}"));
+
 }
 catch (Exception ex)
 {
@@ -71,10 +73,13 @@ try
     results.Add(($"{nameof(Manga.Id)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Id), $"{mangaResult.Data.ElementAt(0).Id}"));
     results.Add(($"{nameof(Manga.Title)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Title), $"{mangaResult.Data.ElementAt(0).Title}"));
     results.Add(($"{nameof(Manga.Description)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).Description), $"{mangaResult.Data.ElementAt(0).Description}"));
+
     results.Add(($"{nameof(Manga.WebSiteUrl)} is well formated", Uri.IsWellFormedUriString(mangaResult.Data.ElementAt(0).WebSiteUrl, UriKind.Absolute), $"{mangaResult.Data.ElementAt(0).WebSiteUrl}"));
     results.Add(($"{nameof(Manga.CoverUrl)} is well formated", Uri.IsWellFormedUriString(mangaResult.Data.ElementAt(0).CoverUrl.ToString(), UriKind.Absolute), $"{mangaResult.Data.ElementAt(0).CoverUrl}"));
+
     results.Add(($"{nameof(Manga.WebSiteUrl)} is found", (await httpClient.GetAsync(mangaResult.Data.ElementAt(0).WebSiteUrl.ToString())).IsSuccessStatusCode, $"{mangaResult.Data.ElementAt(0).WebSiteUrl}"));
-    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(mangaResult.Data.ElementAt(0).CoverUrl.ToString())).IsSuccessStatusCode, $"{mangaResult.Data.ElementAt(0).CoverFileName}"));
+    results.Add(($"{nameof(Manga.CoverUrl)} is found", (await httpClient.GetAsync(mangaResult.Data.ElementAt(0).CoverUrl.ToString())).IsSuccessStatusCode, $"{mangaResult.Data.ElementAt(0).CoverUrl}"));
+
     results.Add(($"{nameof(Manga.CoverFileName)} is not empty", !string.IsNullOrWhiteSpace(mangaResult.Data.ElementAt(0).CoverFileName), $"{mangaResult.Data.ElementAt(0).CoverFileName}"));
     results.Add(($"{nameof(Manga.IsFamilySafe)} is not empty", true, $"{mangaResult.Data.ElementAt(0).IsFamilySafe}"));
 
