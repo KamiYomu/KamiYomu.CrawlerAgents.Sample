@@ -95,5 +95,6 @@ https://kamiyomu.com/docs/crawler-agents/crawler/
 - This repository is for **educational and development purposes**
 - Sample content only — no production manga sources are included
 - Designed to be extended, not used as-is
+- License under MIT
 
 ---

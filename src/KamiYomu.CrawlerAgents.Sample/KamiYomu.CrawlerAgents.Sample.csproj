@@ -7,7 +7,7 @@
   </PropertyGroup>
 
     <PropertyGroup>
-        <Title>KamiYomu Crawler Agent – mangapark.net</Title>
+        <Title>KamiYomu Crawler Agent - KamiYomu.com</Title>
         <Description>A dedicated crawler agent for accessing public data from KamiYomu Sample Manga. Built on KamiYomu.CrawlerAgents.Core, it enables efficient search, metadata extraction, and integration with the KamiYomu platform.</Description>
         <Authors>KamiYomu</Authors>
         <Owners>KamiYomu</Owners>
@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/KamiYomu/KamiYomu.CrawlerAgents.Sample</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>kamiyomu;kamiyomu-crawler-agents;manga-download;mangapark</PackageTags>
-        <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIconUrl>https://raw.githubusercontent.com/KamiYomu/KamiYomu.CrawlerAgents.Sample/refs/heads/main/src/KamiYomu.CrawlerAgents.Sample/Resources/logo.png</PackageIconUrl>
         <PackageIcon>Resources/logo.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
